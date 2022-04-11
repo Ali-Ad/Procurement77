@@ -10,10 +10,10 @@
     <th>Updated by</th>
     <th>Updated On</th>
     <th>Created On</th>
-    <th> Action</th>
+    <th>Action</th>
     </thead>
     <tbody>
-    {% for x in Lls.order.all%}
+    {% for x in Orders.orderitem.all%}
     <tr>
         <td>{{x.id}}</td>
         <td>{{x.vendorItems}}</td>
@@ -26,13 +26,14 @@
             &nbsp
             <a class="btn btn-primary" href="{% url 'updateOrderItem' x.id %}"> Update </a>
             &nbsp
-            <a class="btn btn-primary" href="{%url 'Create_Order_item' x.id%}"> add Items </a>
+
         </td>
     </tr>
     {%endfor%}
 
 
 </table>
+<a class="btn btn-primary" href="{%url 'Create_Order_item' Orders.id%}"> add Items </a>
 
 {% endblock %}
 

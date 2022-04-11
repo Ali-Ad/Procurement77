@@ -1,28 +1,63 @@
 from django.http import HttpResponseRedirect
+from django.urls import reverse_lazy
 from django.views.generic import ListView, CreateView, DeleteView, UpdateView, DetailView
-from .models import *
+from . import models
 from django.views.generic.base import TemplateView
-from .forms import *
+from . import forms
 
 
 class Test(DetailView):
-    model = Ll
-    context_object_name = 'Lls'
+    model = models.Order
+    context_object_name = 'Orders'
     template_name = 'file.html'
 
+
 class CreateTest(CreateView):
-    model = Order
-    fields = ['name', 'Lls', 'vendorItems', 'quantity']
-    template_name = 'createOrder.html'
-    success_url = '/core/LlList'
+    model = models.Orderitem
+    fields = ['name', 'order', 'vendorItems', 'quantity']
+    template_name = 'createOrderItem.html'
+    success_url = '/core/OrderList'
 
     def get_context_data(self, **kwargs):
-        context = super(CreateOrderItem, self).get_context_data(**kwargs)
-        context['formset'] = OrderFormset(queryset=Order.objects.none())
+        context = super(CreateTest, self).get_context_data(**kwargs)
+        context['formset'] = forms.OrderItemFormset(queryset=models.Orderitem.objects.none())
         return context
 
     def post(self, request, *args, **kwargs):
-        formset = OrderFormset(request.POST)
+        formset = forms.OrderItemFormset(request.POST)
+
+        if formset.is_valid():
+            return self.form_valid(formset)
+
+    def form_valid(self, formset):
+        instances = formset.save(commit=True)
+        for instance in instances:
+            instance.created_by = self.request.user
+
+            instance.save()
+        return HttpResponseRedirect('/core/OrderList')
+
+
+# ll
+class OrderList(ListView):
+    model = models.Order
+    context_object_name = 'Orders'
+    template_name = 'OrderList.html'
+
+
+class CreateOrder(CreateView):
+    model = models.Order
+    fields = ['name', 'orderitem']
+    template_name = 'createLl.html'
+    success_url = '/core/OrderList'
+
+    def get_context_data(self, **kwargs):
+        context = super(CreateOrder, self).get_context_data(**kwargs)
+        context['formset'] = forms.OrderFormset(queryset=models.Order.objects.none())
+        return context
+
+    def post(self, request, *args, **kwargs):
+        formset = forms.OrderFormset(request.POST)
 
         if formset.is_valid():
             return self.form_valid(formset)
@@ -32,100 +67,73 @@ class CreateTest(CreateView):
         for instance in instances:
             instance.created_by = self.request.user
             instance.save()
-        return HttpResponseRedirect('/core/LlList')
-
-# ll
-class LlList(ListView):
-    model = Ll
-    context_object_name = 'Lls'
-    template_name = 'LlList.html'
+        return HttpResponseRedirect('/core/OrderList')
 
 
-class CreateLl(CreateView):
-    model = Ll
-    fields = ['name', 'order']
-    template_name = 'createLl.html'
-    success_url = '/core/LlList'
-
-    def get_context_data(self, **kwargs):
-        context = super(CreateLl, self).get_context_data(**kwargs)
-        context['formset'] = LlFormset(queryset=Ll.objects.none())
-        return context
-
-    def post(self, request, *args, **kwargs):
-        formset = LlFormset(request.POST)
-
-        if formset.is_valid():
-            return self.form_valid(formset)
-
-    def form_valid(self, formset):
-        instances = formset.save(commit=False)
-        for instance in instances:
-            instance.created_by = self.request.user
-            instance.save()
-        return HttpResponseRedirect('/core/LlList')
-
-
-class DeleteLl(DeleteView):
-    model = Ll
+class DeleteOrder(DeleteView):
+    model = models.Order
     template_name = 'Delete.html'
-    success_url = '/core/LlList'
+    success_url = '/core/OrderList'
 
 
-class UpdateLl(UpdateView):
-    model = Ll
+class UpdateOrder(UpdateView):
+    model = models.Order
     template_name = 'Update.html'
-    success_url = '/core/LlList'
-    form_class = LlForm
+    success_url = '/core/OrderList'
+    form_class = forms.OrderForm
+
+    def form_valid(self, form):
+        form.instance.updated_by = self.request.user
+        return super().form_valid(form)
 
 
 # Orders
 class OrderItemList(ListView):
-    model = Order
+    model = models.Orderitem
     context_object_name = 'Orders'
-    template_name = 'OrderItemList.html.'
+    template_name = 'OrderItemList.html'
 
 
 class CreateOrderItem(CreateView):
-    model = Order
-    fields = ['name', 'Lls', 'vendorItems', 'quantity']
-    template_name = 'createOrder.html'
-    success_url = '/core/LlList'
+    model = models.Orderitem
+    fields = ['name', 'order', 'vendorItems', 'quantity']
+    template_name = 'createOrderItem.html'
+    success_url = '/core/OrderList'
 
     def get_context_data(self, **kwargs):
-        context = super(CreateOrderItem, self).get_context_data(**kwargs)
-        context['formset'] = OrderFormset(queryset=Order.objects.none())
+        context = super().get_context_data(**kwargs)
+        context['formset'] = forms.OrderItemFormset(queryset=models.Orderitem.objects.none())
         return context
 
     def post(self, request, *args, **kwargs):
-        formset = OrderFormset(request.POST)
+        formset = forms.OrderItemFormset(request.POST)
 
         if formset.is_valid():
             return self.form_valid(formset)
 
-    def form_valid(self, formset):
+    def get_success_url(self, **kwargs):
+        return reverse_lazy('Create_Order_item', args=[int(self.kwargs['pk'])])
+
+    def form_valid(self, formset, **kwargs):
         instances = formset.save(commit=True)
+        order = models.Order.objects.get(id=self.kwargs['pk'])
         for instance in instances:
             instance.created_by = self.request.user
+            instance.order.add(order.id)
             instance.save()
-        return HttpResponseRedirect('/core/LlList')
-
-    #
-    # def form_valid(self, form):
-    #     form.instance.created_by = self.request.user
-    #     return super().form_valid(form)
+        return super().form_valid(formset)
 
 
 class DeleteOrderItem(DeleteView):
-    model = Order
+    model = models.Orderitem
     template_name = 'Delete.html'
     success_url = '/core/OrderItem'
 
 
 class UpdateOrderItem(UpdateView):
-    model = Order
+    model = models.Orderitem
     template_name = 'Update.html'
-    form_class = OrderItemForm
+    form_class = forms.OrderItemForm
     success_url = '/core/OrderItem'
 
     def form_valid(self, form):
@@ -135,13 +143,13 @@ class UpdateOrderItem(UpdateView):
 
 # VendorItem
 class VendorItemsList(ListView):
-    model = VendorItems
+    model = models.VendorItems
     context_object_name = 'vendorItems'
     template_name = 'VendorItems.html'
 
 
 class CreateVendorItem(CreateView):
-    model = VendorItems
+    model = models.VendorItems
     fields = ['vendor', 'item', 'price']
     template_name = 'create.html'
     success_url = '/core/vendorItems'
@@ -152,15 +160,15 @@ class CreateVendorItem(CreateView):
 
 
 class DeleteVendorItem(DeleteView):
-    model = VendorItems
+    model = models.VendorItems
     template_name = 'Delete.html'
     success_url = '/core/vendorItems'
 
 
 class UpdateVendorItem(UpdateView):
-    model = VendorItems
+    model = models.VendorItems
     template_name = 'Update.html'
-    form_class = VendorItemsForm
+    form_class = forms.VendorItemsForm
     success_url = '/core/vendorItems'
 
     def form_valid(self, form):
@@ -170,13 +178,13 @@ class UpdateVendorItem(UpdateView):
 
 # Vendor
 class VendorList(ListView):
-    model = Vendor
+    model = models.Vendor
     context_object_name = 'vendors'
     template_name = 'vendor.html'
 
 
 class CreateVendor(CreateView):
-    model = Vendor
+    model = models.Vendor
     fields = ['name', 'phone', 'email', 'address']
     template_name = 'create.html'
     success_url = '/core/vendor'
@@ -187,15 +195,15 @@ class CreateVendor(CreateView):
 
 
 class DeleteVendor(DeleteView):
-    model = Vendor
+    model = models.Vendor
     template_name = 'Delete.html'
     success_url = '/core/vendor'
 
 
 class UpdateVendor(UpdateView):
-    model = Vendor
+    model = models.Vendor
     template_name = 'Update.html'
-    form_class = VendorForm
+    form_class = forms.VendorForm
     success_url = '/core/vendor'
 
     def form_valid(self, form):
@@ -205,13 +213,13 @@ class UpdateVendor(UpdateView):
 
 # Item
 class ItemList(ListView):
-    model = Item
+    model = models.Item
     context_object_name = 'Items'
     template_name = 'ItemList.html'
 
 
 class CreateItem(CreateView):
-    model = Item
+    model = models.Item
     fields = ['name', 'type']
     template_name = 'create.html'
     success_url = '/core/item'
@@ -222,15 +230,15 @@ class CreateItem(CreateView):
 
 
 class DeleteItem(DeleteView):
-    model = Item
+    model = models.Item
     template_name = 'Delete.html'
     success_url = '/core/item'
 
 
 class UpdateItem(UpdateView):
-    model = Item
+    model = models.Item
     template_name = 'Update.html'
-    form_class = ItemForm
+    form_class = forms.ItemForm
     success_url = '/core/item'
 
     def form_valid(self, form):
