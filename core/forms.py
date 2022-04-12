@@ -7,11 +7,11 @@ from . import models
 class OrderItemForm(forms.ModelForm):
 
     class Meta:
-        model = models.Orderitem
-        fields = ['name', 'order', 'vendorItems', 'quantity']
+        model = models.OrderItem
+        fields = ['name', 'order', 'vendor_items', 'quantity']
 
 
-OrderItemFormset = modelformset_factory(models.Orderitem, fields=('vendorItems', 'quantity'), extra=1,)
+OrderItemFormset = modelformset_factory(models.OrderItem, fields=('vendor_items', 'quantity'), extra=1,)
 
 
 class ItemForm(forms.ModelForm):

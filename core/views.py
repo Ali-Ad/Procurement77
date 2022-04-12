@@ -13,14 +13,14 @@ class Test(DetailView):
 
 
 class CreateTest(CreateView):
-    model = models.Orderitem
-    fields = ['name', 'order', 'vendorItems', 'quantity']
-    template_name = 'createOrderItem.html'
+    model = models.OrderItem
+    fields = ['name', 'order', 'vendor_items', 'quantity']
+    template_name = 'create_order_item.html'
     success_url = '/core/OrderList'
 
     def get_context_data(self, **kwargs):
         context = super(CreateTest, self).get_context_data(**kwargs)
-        context['formset'] = forms.OrderItemFormset(queryset=models.Orderitem.objects.none())
+        context['formset'] = forms.OrderItemFormset(queryset=models.OrderItem.objects.none())
         return context
 
     def post(self, request, *args, **kwargs):
@@ -38,17 +38,17 @@ class CreateTest(CreateView):
         return HttpResponseRedirect('/core/OrderList')
 
 
-# ll
+# Order
 class OrderList(ListView):
     model = models.Order
     context_object_name = 'Orders'
-    template_name = 'OrderList.html'
+    template_name = 'order_list.html'
 
 
 class CreateOrder(CreateView):
     model = models.Order
-    fields = ['name', 'orderitem']
-    template_name = 'createLl.html'
+    fields = ['name', 'order_item']
+    template_name = 'create_order.html'
     success_url = '/core/OrderList'
 
     def get_context_data(self, **kwargs):
@@ -72,13 +72,13 @@ class CreateOrder(CreateView):
 
 class DeleteOrder(DeleteView):
     model = models.Order
-    template_name = 'Delete.html'
+    template_name = 'delete.html'
     success_url = '/core/OrderList'
 
 
 class UpdateOrder(UpdateView):
     model = models.Order
-    template_name = 'Update.html'
+    template_name = 'update.html'
     success_url = '/core/OrderList'
     form_class = forms.OrderForm
 
@@ -87,22 +87,22 @@ class UpdateOrder(UpdateView):
         return super().form_valid(form)
 
 
-# Orders
+# Order Item
 class OrderItemList(ListView):
-    model = models.Orderitem
+    model = models.OrderItem
     context_object_name = 'Orders'
-    template_name = 'OrderItemList.html'
+    template_name = 'order_item_list.html'
 
 
 class CreateOrderItem(CreateView):
-    model = models.Orderitem
-    fields = ['name', 'order', 'vendorItems', 'quantity']
-    template_name = 'createOrderItem.html'
+    model = models.OrderItem
+    fields = ['name', 'order', 'vendor_items', 'quantity']
+    template_name = 'create_order_item.html'
     success_url = '/core/OrderList'
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['formset'] = forms.OrderItemFormset(queryset=models.Orderitem.objects.none())
+        context['formset'] = forms.OrderItemFormset(queryset=models.OrderItem.objects.none())
         return context
 
     def post(self, request, *args, **kwargs):
@@ -125,16 +125,16 @@ class CreateOrderItem(CreateView):
 
 
 class DeleteOrderItem(DeleteView):
-    model = models.Orderitem
-    template_name = 'Delete.html'
-    success_url = '/core/OrderItem'
+    model = models.OrderItem
+    template_name = 'delete.html'
+    success_url = '/core/OrderList'
 
 
 class UpdateOrderItem(UpdateView):
-    model = models.Orderitem
-    template_name = 'Update.html'
+    model = models.OrderItem
+    template_name = 'update.html'
     form_class = forms.OrderItemForm
-    success_url = '/core/OrderItem'
+    success_url = '/core/OrderList'
 
     def form_valid(self, form):
         form.instance.updated_by = self.request.user
@@ -145,7 +145,7 @@ class UpdateOrderItem(UpdateView):
 class VendorItemsList(ListView):
     model = models.VendorItems
     context_object_name = 'vendorItems'
-    template_name = 'VendorItems.html'
+    template_name = 'vendor_items.html'
 
 
 class CreateVendorItem(CreateView):
@@ -161,13 +161,13 @@ class CreateVendorItem(CreateView):
 
 class DeleteVendorItem(DeleteView):
     model = models.VendorItems
-    template_name = 'Delete.html'
+    template_name = 'delete.html'
     success_url = '/core/vendorItems'
 
 
 class UpdateVendorItem(UpdateView):
     model = models.VendorItems
-    template_name = 'Update.html'
+    template_name = 'update.html'
     form_class = forms.VendorItemsForm
     success_url = '/core/vendorItems'
 
@@ -196,13 +196,13 @@ class CreateVendor(CreateView):
 
 class DeleteVendor(DeleteView):
     model = models.Vendor
-    template_name = 'Delete.html'
+    template_name = 'delete.html'
     success_url = '/core/vendor'
 
 
 class UpdateVendor(UpdateView):
     model = models.Vendor
-    template_name = 'Update.html'
+    template_name = 'update.html'
     form_class = forms.VendorForm
     success_url = '/core/vendor'
 
@@ -215,7 +215,7 @@ class UpdateVendor(UpdateView):
 class ItemList(ListView):
     model = models.Item
     context_object_name = 'Items'
-    template_name = 'ItemList.html'
+    template_name = 'item_list.html'
 
 
 class CreateItem(CreateView):
@@ -231,13 +231,13 @@ class CreateItem(CreateView):
 
 class DeleteItem(DeleteView):
     model = models.Item
-    template_name = 'Delete.html'
+    template_name = 'delete.html'
     success_url = '/core/item'
 
 
 class UpdateItem(UpdateView):
     model = models.Item
-    template_name = 'Update.html'
+    template_name = 'update.html'
     form_class = forms.ItemForm
     success_url = '/core/item'
 
@@ -247,4 +247,4 @@ class UpdateItem(UpdateView):
 
 
 class HomePageView(TemplateView):
-    template_name = "account/home.html"
+    template_name = 'account/home.html'

@@ -1,16 +1,15 @@
 from django.db import models
 from django.contrib.auth.models import User
-from django.db.models import Sum
 
 
 class Order(models.Model):
     name = models.CharField(max_length=64)
-    orderitem = models.ManyToManyField('Orderitem', through='Orderitem_order', related_name='+')
+    order_item = models.ManyToManyField('OrderItem', through='orderitem_order', related_name='order_item_order')
     created_on = models.DateTimeField(auto_now_add=True)
     updated_on = models.DateTimeField(auto_now=True)
-    created_by = models.ForeignKey(User, on_delete=models.CASCADE, related_name="user_created_Order", null=True)
-    updated_by = models.ForeignKey(User, on_delete=models.CASCADE, related_name="user_updated_Order", null=True)
-    approved_by = models.ForeignKey(User, on_delete=models.CASCADE, related_name="user_approved_Order", null=True)
+    created_by = models.ForeignKey(User, on_delete=models.CASCADE, related_name='user_created_order', null=True)
+    updated_by = models.ForeignKey(User, on_delete=models.CASCADE, related_name='user_updated_order', null=True)
+    approved_by = models.ForeignKey(User, on_delete=models.CASCADE, related_name='user_approved_order', null=True)
 
     def __str__(self):
         return self.name
@@ -19,24 +18,23 @@ class Order(models.Model):
         verbose_name_plural = 'order'
 
 
-class Orderitem(models.Model):
+class OrderItem(models.Model):
     name = models.CharField(max_length=64)
-    total_Price = models.FloatField(default="0", null=True)
+    total_price = models.FloatField(default='0', null=True)
     created_on = models.DateTimeField(auto_now_add=True)
     updated_on = models.DateTimeField(auto_now=True)
-    created_by = models.ForeignKey(User, on_delete=models.CASCADE, related_name="user_created_Orderitem", null=True)
-    updated_by = models.ForeignKey(User, on_delete=models.CASCADE, related_name="user_updated_Orderitem", null=True)
-    vendorItems = models.ForeignKey('VendorItems', on_delete=models.CASCADE, related_name="hellof", null=True)
+    created_by = models.ForeignKey(User, on_delete=models.CASCADE, related_name='user_created_orderitem', null=True)
+    updated_by = models.ForeignKey(User, on_delete=models.CASCADE, related_name='user_updated_orderitem', null=True)
+    vendor_items = models.ForeignKey('VendorItems', on_delete=models.CASCADE, related_name='vendoritem', null=True)
     quantity = models.IntegerField()
-    order = models.ManyToManyField(Order, related_name='+')
+    order = models.ManyToManyField(Order, related_name='orderitem_order')
 
     def __str__(self):
         return self.name
 
     @property
-    def some_name(self):
-        x = self.quantity * self.vendorItems.price
-        return x
+    def item_price(self):
+        return self.quantity * self.vendor_items.price
 
 
 class Item(models.Model):
@@ -44,8 +42,8 @@ class Item(models.Model):
     type = models.CharField(max_length=64)
     created_on = models.DateTimeField(auto_now_add=True)
     updated_on = models.DateTimeField(auto_now=True)
-    created_by = models.ForeignKey(User, on_delete=models.CASCADE, related_name="user_created_item")
-    updated_by = models.ForeignKey(User, on_delete=models.CASCADE, related_name="user_updated_item", null=True)
+    created_by = models.ForeignKey(User, on_delete=models.CASCADE, related_name='user_created_item')
+    updated_by = models.ForeignKey(User, on_delete=models.CASCADE, related_name='user_updated_item', null=True)
 
     def __str__(self):
         return self.name
@@ -58,22 +56,22 @@ class Vendor(models.Model):
     address = models.CharField(max_length=64)
     created_on = models.DateTimeField(auto_now_add=True)
     updated_on = models.DateTimeField(auto_now=True)
-    created_by = models.ForeignKey(User, on_delete=models.PROTECT, related_name="user_created_vendor", null=True)
-    updated_by = models.ForeignKey(User, on_delete=models.PROTECT, related_name="user_updated_vendor", null=True)
+    created_by = models.ForeignKey(User, on_delete=models.PROTECT, related_name='user_created_vendor', null=True)
+    updated_by = models.ForeignKey(User, on_delete=models.PROTECT, related_name='user_updated_vendor', null=True)
 
     def __str__(self):
         return self.name
 
 
 class VendorItems(models.Model):
-    vendor = models.ForeignKey(Vendor, on_delete=models.CASCADE, related_name="vendor_VendorItem", default="",
+    vendor = models.ForeignKey(Vendor, on_delete=models.CASCADE, related_name='vendor_VendorItem', default='',
                                null=True)
-    item = models.ForeignKey(Item, on_delete=models.CASCADE, related_name="item_vendoritems", default="", null=True)
+    item = models.ForeignKey(Item, on_delete=models.CASCADE, related_name='item_vendoritems', default='', null=True)
     price = models.FloatField()
     created_on = models.DateTimeField(auto_now_add=True)
     updated_on = models.DateTimeField(auto_now=True)
-    created_by = models.ForeignKey(User, on_delete=models.CASCADE, related_name="user_created_vendoritems", null=True)
-    updated_by = models.ForeignKey(User, on_delete=models.CASCADE, related_name="user_updated_vendoritems", null=True)
+    created_by = models.ForeignKey(User, on_delete=models.CASCADE, related_name='user_created_vendoritems', null=True)
+    updated_by = models.ForeignKey(User, on_delete=models.CASCADE, related_name='user_updated_vendoritems', null=True)
 
     def __str__(self):
         return self.item.name

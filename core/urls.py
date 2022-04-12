@@ -1,7 +1,7 @@
 from django.urls import path
 from . import views
 
-from .models import Orderitem , VendorItems, Vendor, Item
+from .models import OrderItem , VendorItems, Vendor, Item
 
 urlpatterns = [
 

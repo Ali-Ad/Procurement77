@@ -13,25 +13,23 @@
     <th>Action</th>
     </thead>
     <tbody>
-    {% for x in Orders.orderitem.all%}
+    {% for item in Orders.order_item.all%}
     <tr>
-        <td>{{x.id}}</td>
-        <td>{{x.vendorItems}}</td>
-        <td>{{x.some_name}}</td>
-        <td>{{x.created_by}}</td>
-        <td>{{x.created_on}}</td>
-        <td>{{x.updated_by}}</td>
-        <td>{{x.updated_on}}</td>
-        <td><a class="btn btn-danger" href="{% url 'deleteOrderItem' x.id %}"> Delete </a>
+        <td>{{item.id}}</td>
+        <td>{{item.vendor_items}}</td>
+        <td>{{item.item_price}}</td>
+        <td>{{item.created_by}}</td>
+        <td>{{item.created_on}}</td>
+        <td>{{item.updated_by}}</td>
+        <td>{{item.updated_on}}</td>
+        <td><a class="btn btn-danger" href="{% url 'deleteOrderItem' item.id %}"> Delete </a>
             &nbsp
-            <a class="btn btn-primary" href="{% url 'updateOrderItem' x.id %}"> Update </a>
+            <a class="btn btn-primary" href="{% url 'updateOrderItem' item.id %}"> Update </a>
             &nbsp
 
         </td>
     </tr>
     {%endfor%}
-
-
 </table>
 <a class="btn btn-primary" href="{%url 'Create_Order_item' Orders.id%}"> add Items </a>
 
